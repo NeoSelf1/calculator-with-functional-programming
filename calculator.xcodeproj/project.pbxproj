@@ -6,6 +6,10 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXBuildFile section */
+		E58B90592CEB24E200E7FE69 /* .gitignore in Resources */ = {isa = PBXBuildFile; fileRef = E58B90582CEB24DE00E7FE69 /* .gitignore */; };
+/* End PBXBuildFile section */
+
 /* Begin PBXContainerItemProxy section */
 		E5B1332C2CE71E0A00DC5DF5 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
@@ -24,6 +28,7 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		E58B90582CEB24DE00E7FE69 /* .gitignore */ = {isa = PBXFileReference; lastKnownFileType = text; path = .gitignore; sourceTree = "<group>"; };
 		E5B133152CE71E0900DC5DF5 /* calculator.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = calculator.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		E5B1332B2CE71E0A00DC5DF5 /* calculatorTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = calculatorTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		E5B133352CE71E0A00DC5DF5 /* calculatorUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = calculatorUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -88,6 +93,7 @@
 		E5B1330C2CE71E0900DC5DF5 = {
 			isa = PBXGroup;
 			children = (
+				E58B90582CEB24DE00E7FE69 /* .gitignore */,
 				E5B133172CE71E0900DC5DF5 /* calculator */,
 				E5B1332E2CE71E0A00DC5DF5 /* calculatorTests */,
 				E5B133382CE71E0A00DC5DF5 /* calculatorUITests */,
@@ -225,6 +231,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				E58B90592CEB24E200E7FE69 /* .gitignore in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
