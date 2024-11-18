@@ -100,6 +100,7 @@ class CalculatorViewController: UIViewController {
     
     // MARK: - 계산기 핵심 로직
     private var currentState: CalculatorState = .initial
+    private var commands = [String]()
     
     // 연산을 위해 치환했던 Double값을 표시를 위한 String값으로 변환 및 포맷하는 메서드
     private func formatNumber(_ number: Double) -> String {
@@ -121,7 +122,7 @@ class CalculatorViewController: UIViewController {
         }
     }
     
-    // 전체 프로젝트에서의 로직틀은 순수히 CalculatorState 객체 내부 상태값이 변경되는 과정만 존재한다. 동시성프로그래밍 혹은
+    // 프로젝트 내부 연산로직은 currentState 구조체가 바로 이전 자기자신의 상태값에 따라 갱신이 반복되며 이루어진다.
     private func reduce(state: CalculatorState, action: CalculatorAction) -> CalculatorState {
         switch action {
         case .number(let digit):
@@ -146,6 +147,7 @@ class CalculatorViewController: UIViewController {
             
         case .operation(let op):
             guard let currentNumber = Double(state.displayNumber) else { return state }
+            // 연산자가 이미 추가되어 있는 상황의 경우, 두번째 피연산자 입력을 생략하고 바로 연산 및 결과값 갱신
             if let storedNumber = state.storedNumber, let currentOp = state.operation {
                 let result = perform(operation: currentOp, first: storedNumber, second: currentNumber)
                 return CalculatorState(
@@ -183,23 +185,41 @@ class CalculatorViewController: UIViewController {
             return .initial
         }
     }
-    // 사용자로의 이벤트가 호출되면, 프로젝트 내부에서 관리되는 데이터(currentState)는 삭제되지 않고, reduce 메서드를 통해 기존 데이터에서 덧붙여지는 과정만을 반복한다.
-    // 때문에,  동시 업데이트 문제가 발생하지 않으며,
+    
     @objc private func numberButtonTapped(_ sender: UIButton) {
         guard let title = sender.currentTitle else { return }
+        // 데이터 상태(currentState)를 변화시키기 위해 수행하는 작업의 단위(Transaction) 자체를 commands 배열에 저장
+        commands.append(title)
+        // 트랜젝션의 배열을 통째로 인자로 넘겨 매 이벤트 호출마다 앱 시작 시점부터 발생한 모든 트랜잭션을 모두 누적연산
+        // 이는 CRUD 중 U와 D가 이벤트 호출 간에 발생하지 않음을 의미, 동시 업데이트 문제 사전에 완전 방지 -> 완전한 불변성 가질 수 있게 됨.
+        refreshState(commands)
+    }
+    
+    private func refreshState(_ commands: [String]){
+        // 초기화
+        currentState = .initial
         
-        switch title {
-        case "+", "-", "*", "/":
-            currentState = reduce(state: currentState, action: .operation(title))
-        case "AC":
-            currentState = reduce(state: currentState, action: .clear)
-        case "=":
-            currentState = reduce(state: currentState, action: .equals)
-        default:
-            currentState = reduce(state: currentState, action: .number(title))
+        // 고차함수 reduce의 로직과 동일하게 첫번째 커멘드부터 모든 연산을 시작
+        commands.forEach{
+            switch $0 {
+            case "+", "-", "*", "/":
+                currentState = reduce(state: currentState, action: .operation($0))
+            case "AC":
+                currentState = reduce(state: currentState, action: .clear)
+            case "=":
+                currentState = reduce(state: currentState, action: .equals)
+            default:
+                currentState = reduce(state: currentState, action: .number($0))
+            }
         }
         
+        // 트랜잭션이 모두 완료된 이후에서야 가변변수 numberLabel과 operatorLabel을 갱신
+        // 경합조건, 교착상태 조건, 동시업데이트가 발생하는 원인을 최후 한번만 제어
         numberLabel.text = currentState.displayNumber
         operatorLabel.text = currentState.displayOperator
+        
+        // 완전한 불변성을 준수하기 위해선 currentState 구조체로 다수 상태값을 한번에 관리하는 것이 아닌, 상태값 하나당 고차함수를 삽입해 구조체 내부 다른 상태값에 영향받지 않도록 해야하지 않을까.
+        // 은행 입금, 출금과 달리 계산기에는 연산자, 저장되어있는 값, 화면 리셋필요여부 등 다음 라벨값을 구하기 위해 동시에 확인해야하는 값이 여럿 존재.
+        // 만약 currentState 내부 변수들을 제어하는 시점이 동일하다면, 문제가 없나?
     }
 }
