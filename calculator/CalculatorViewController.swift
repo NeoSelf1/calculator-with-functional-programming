@@ -67,9 +67,9 @@ class CalculatorViewController: UIViewController {
         view.addSubview(numberLabel)
         view.addSubview(verticalStackView)
         
-        for i in 0..<4{
+        for i in 0..<4 {
             let row = createHorizontalStackView()
-            data[i*4..<(i+1)*4].forEach{ title in
+            data[i*4..<(i+1)*4].forEach { title in
                 let backgroundColor = Int(title) == nil ? UIColor.orange : .gray2
                 row.addArrangedSubview(makeButton(titleValue: title == "a" ? "AC" : title, action: #selector(numberButtonTapped), backgroundColor: backgroundColor))
             }
@@ -189,7 +189,12 @@ class CalculatorViewController: UIViewController {
     @objc private func numberButtonTapped(_ sender: UIButton) {
         guard let title = sender.currentTitle else { return }
         // 데이터 상태(currentState)를 변화시키기 위해 수행하는 작업의 단위(Transaction) 자체를 commands 배열에 저장
-        commands.append(title)
+        if title == "AC" {
+            commands = []
+        } else {
+            commands.append(title)
+        }
+        print(commands)
         // 트랜젝션의 배열을 통째로 인자로 넘겨 매 이벤트 호출마다 앱 시작 시점부터 발생한 모든 트랜잭션을 모두 누적연산
         // 이는 CRUD 중 U와 D가 이벤트 호출 간에 발생하지 않음을 의미, 동시 업데이트 문제 사전에 완전 방지 -> 완전한 불변성 가질 수 있게 됨.
         refreshState(commands)
@@ -200,7 +205,7 @@ class CalculatorViewController: UIViewController {
         currentState = .initial
         
         // 고차함수 reduce의 로직과 동일하게 첫번째 커멘드부터 모든 연산을 시작
-        commands.forEach{
+        commands.forEach {
             switch $0 {
             case "+", "-", "*", "/":
                 currentState = reduce(state: currentState, action: .operation($0))
