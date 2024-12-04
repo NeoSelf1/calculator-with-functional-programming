@@ -7,7 +7,7 @@ UIKit과 MVC 아키텍처를 기반으로 한 함수형 프로그래밍 방식�
 - 순수 함수 (Pure Functions)
 - 타입 안전성 (Type Safety)
 - 상태 관리 (State Management)
-- 
+
 2. 기본적인 사칙연산 구현
 
 🏗 프로젝트 구조
